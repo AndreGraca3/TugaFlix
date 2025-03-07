@@ -1,6 +1,6 @@
 const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 require("dotenv").config();
-const OsTeusFilmesTuga = require("./providers/OsTeusFilmesTuga");
+const OsTeusFilmesTuga = require("./src/providers/OsTeusFilmesTuga");
 
 const manifest = {
   id: "community.tugaflix",
