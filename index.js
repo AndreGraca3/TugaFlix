@@ -39,6 +39,8 @@ builder.defineStreamHandler(async ({ type, id }) => {
     )
   );
 
+  console.log("Streams: ", streams.flat());
+
   return {
     streams: streams.flat(),
   };
