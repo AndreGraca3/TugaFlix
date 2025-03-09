@@ -87,10 +87,7 @@ class OsTeusFilmesTuga extends Provider {
       if (!streamProviderUrl || streamProviderUrl.includes("osteusfilmestuga"))
         return null; // TODO: handle their player
 
-      const { data, status } = await axios.get(
-        `https://api.scraperapi.com/?api_key=${process.env.SCRAPER_API_KEY}&country_code=pt&url=` +
-          streamProviderUrl
-      );
+      const { data, status } = await axios.get(streamProviderUrl);
       if (status != 200) return null;
 
       const unpackedPlayerCode = unpacker.unpack(data);
