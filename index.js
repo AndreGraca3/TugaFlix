@@ -20,12 +20,11 @@ const providers = [new OsTeusFilmesTuga()];
 
 builder.defineStreamHandler(async ({ type, id }) => {
   if (type !== "movie") return { streams: [] };
-  console.log("Hit! IMDB ID: ", id);
 
   const streams = await Promise.all(
     providers.map((provider) =>
       provider.getStreamsUrls(id).then((streams) => {
-        return streams.map((stream) => {
+        return streams.flatMap((stream) => {
           return {
             title: `🎬 ${stream.movieTitle}\n🌍 ${provider.siteUrl}\n ✨ ${stream.quality}`,
             name: `[TugaFlix]\n${stream.quality}`,
@@ -39,10 +38,8 @@ builder.defineStreamHandler(async ({ type, id }) => {
     )
   );
 
-  console.log("Streams: ", streams.flat());
-
   return {
-    streams: streams.flat(),
+    streams: streams,
   };
 });
 
