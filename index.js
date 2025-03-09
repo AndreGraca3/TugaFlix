@@ -24,7 +24,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
   const streams = await Promise.all(
     providers.map((provider) =>
       provider.getStreamsUrls(id).then((streams) => {
-        return streams.flatMap((stream) => {
+        return streams.map((stream) => {
           return {
             title: `🎬 ${stream.movieTitle}\n🌍 ${provider.siteUrl}\n ✨ ${stream.quality}`,
             name: `[TugaFlix]\n${stream.quality}`,
@@ -37,6 +37,8 @@ builder.defineStreamHandler(async ({ type, id }) => {
       })
     )
   );
+
+  console.log("Streams:", streams.flat());
 
   return {
     streams: streams,

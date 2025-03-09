@@ -75,7 +75,7 @@ class OsTeusFilmesTuga extends Provider {
         ? streamProviderUrlMatch[1]
         : null;
 
-      return this.#getStreamDetailsFromProvider(streamProviderUrl);
+      return await this.#getStreamDetailsFromProvider(streamProviderUrl);
     } catch (error) {
       console.error("Error fetching stream URL:", error);
       return null;
@@ -87,10 +87,12 @@ class OsTeusFilmesTuga extends Provider {
       if (!streamProviderUrl || streamProviderUrl.includes("osteusfilmestuga"))
         return null; // TODO: handle their player
 
-      const { data, status } = await axios.get(`https://api.scraperapi.com/?api_key=${process.env.SCRAPER_API_KEY}&country_code=uk&url=` + streamProviderUrl);
+      const { data, status } = await axios.get(
+        `https://api.scraperapi.com/?api_key=${process.env.SCRAPER_API_KEY}&country_code=pt&url=` +
+          streamProviderUrl
+      );
       if (status != 200) return null;
 
-      if (!unpacker.detect(data)) return null;
       const unpackedPlayerCode = unpacker.unpack(data);
 
       const streamUrlMatch = unpackedPlayerCode.match(/file:"([^"]+)"/i);
