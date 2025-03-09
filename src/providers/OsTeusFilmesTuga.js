@@ -18,21 +18,23 @@ class OsTeusFilmesTuga extends Provider {
     const { postId, streamsCount } = await this.#getSiteData(movieSlug);
     if (!postId || streamsCount === 0) return [];
 
-    const streamUrls = await Promise.all(
+    const streams = await Promise.all(
       Array.from({ length: streamsCount }, (_, idx) =>
-        this.getStreamUrl(postId, idx + 1)
+        this.#getStreamDetails(postId, idx + 1)
       )
     );
 
-    return streamUrls
-      .filter((url) => url)
-      .map((url) => ({
+    return streams
+      .filter((stream) => stream)
+      .map((stream) => ({
         movieTitle: movie.title,
-        url,
-      }));
+        url: stream.url,
+        quality: stream.quality,
+      }))
+      .sort((a, b) => parseInt(b.quality) - parseInt(a.quality));
   }
 
-  async getStreamUrl(postId, streamIdx = 1) {
+  async #getStreamDetails(postId, streamIdx = 1) {
     try {
       const { data } = await axios.post(
         `${this.siteUrl}/wp-admin/admin-ajax.php`,
@@ -58,11 +60,28 @@ class OsTeusFilmesTuga extends Provider {
         return null; // TODO: handle their player
 
       const { data: streamProviderData } = await axios.get(streamProviderUrl);
-      const unpacked = unpacker.unpack(streamProviderData);
-      const streamUrlMatch = unpacked.match(/file:"([^"]+)"/i);
+      const unpackedPlayerCode = unpacker.unpack(streamProviderData);
+
+      const streamUrlMatch = unpackedPlayerCode.match(/file:"([^"]+)"/i);
       const streamUrl = streamUrlMatch ? streamUrlMatch[1] : null;
 
-      return streamUrl;
+      // .jpg",kind:"thumbnails"}],captions:{userFontScale:1,color:\'#FFFFFF\',backgroundColor:\'transparent\',fontFamily:"Tahoma",backgroundOpacity:0,fontOpacity:\'100\',},"advertising":{"client":"vast","vpaidmode":"insecure"},\'qualityLabels\':{"919":"480p"},
+
+      const qualityLabelsMatch = unpackedPlayerCode.match(
+        /qualityLabels[^{]+({[^}]+})/i
+      );
+      const qualityLabels = qualityLabelsMatch
+        ? JSON.parse(qualityLabelsMatch[1])
+        : null;
+
+      const firstQuality = qualityLabels
+        ? Object.values(qualityLabels)[0]
+        : null;
+
+      return {
+        url: streamUrl,
+        quality: firstQuality || "unknown",
+      };
     } catch (error) {
       console.error("Error fetching stream URL:", error);
       return null;

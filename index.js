@@ -27,8 +27,8 @@ builder.defineStreamHandler(async ({ type, id }) => {
       provider.getStreamsUrls(id).then((streams) => {
         return streams.map((stream) => {
           return {
-            title: `🎬 ${stream.movieTitle}\n🌍 ${provider.siteUrl}`,
-            name: "TugaFlix",
+            title: `🎬 ${stream.movieTitle}\n🌍 ${provider.siteUrl}\n ✨ ${stream.quality}`,
+            name: `[TugaFlix]\n${stream.quality}`,
             url: stream.url,
             behaviorHints: {
               notWebReady: true,
