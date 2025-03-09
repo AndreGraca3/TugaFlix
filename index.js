@@ -2,6 +2,8 @@ const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 require("dotenv").config();
 const OsTeusFilmesTuga = require("./src/providers/OsTeusFilmesTuga");
 
+console.log(process.env);
+
 const manifest = {
   id: "community.tugaflix",
   version: "1.0.0",
@@ -20,6 +22,7 @@ const providers = [new OsTeusFilmesTuga()];
 
 builder.defineStreamHandler(async ({ type, id }) => {
   if (type !== "movie") return { streams: [] };
+  console.log("Hit: ", id);
 
   const streams = await Promise.all(
     providers.map((provider) =>
