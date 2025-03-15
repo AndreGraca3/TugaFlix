@@ -1,6 +1,7 @@
 const { addonBuilder, serveHTTP } = require("stremio-addon-sdk");
 require("dotenv").config();
-const OsTeusFilmesTuga = require("./src/providers/OsTeusFilmesTuga");
+const OsTeusFilmesTuga = require("./src/sources/OsTeusFilmesTuga");
+const PackedProvider = require("./src/sources/providers/PackedProvider");
 
 const manifest = {
   id: "community.tugaflix",
@@ -16,7 +17,8 @@ const manifest = {
 
 const builder = new addonBuilder(manifest);
 
-const providers = [new OsTeusFilmesTuga()];
+const packedProvider = new PackedProvider();
+const sources = [new OsTeusFilmesTuga([packedProvider])];
 
 builder.defineStreamHandler(async ({ type, id }) => {
   if (type !== "movie") return { streams: [] };
@@ -24,11 +26,11 @@ builder.defineStreamHandler(async ({ type, id }) => {
 
   const streams = (
     await Promise.all(
-      providers.map((provider) =>
-        provider.getStreamsUrls(id).then((streams) => {
+      sources.map((source) =>
+        source.getStreamsUrls(id).then((streams) => {
           return streams.map((stream) => {
             return {
-              title: `🎬 ${stream.movieTitle}\n📂 ${stream.fileName}\n🌍 ${provider.siteUrl}\n✨ ${stream.quality}`,
+              title: `🎬 ${stream.movieTitle}\n📂 ${stream.fileName}\n🌍 ${source.siteUrl}\n✨ ${stream.quality}`,
               name: `[TugaFlix]\n${stream.quality}`,
               url: stream.url,
               behaviorHints: {

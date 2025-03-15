@@ -1,12 +1,12 @@
 const axios = require("axios");
 const qs = require("qs");
 const tmdb = require("../tmdb");
-const Provider = require("./Provider");
-const unpacker = require("unpacker");
+const Source = require("./Source");
 
-class OsTeusFilmesTuga extends Provider {
-  constructor() {
+class OsTeusFilmesTuga extends Source {
+  constructor(providers) {
     super("Os Teus Filmes Tuga", "https://osteusfilmestuga.online");
+    this.providers = providers;
   }
 
   async getStreamsUrls(id) {
@@ -74,54 +74,13 @@ class OsTeusFilmesTuga extends Provider {
         ? streamProviderUrlMatch[1]
         : null;
 
-      return await this.#getStreamDetailsFromProvider(streamProviderUrl);
-    } catch (error) {
-      console.error("Error fetching stream URL:", error);
-      return null;
-    }
-  }
-
-  async #getStreamDetailsFromProvider(streamProviderUrl) {
-    try {
-      if (
-        !streamProviderUrl ||
-        !streamProviderUrl.includes(
-          "ryderjet",
-          "vidhidehub",
-          "hlswish",
-          "ghbrisk"
+      return (
+        await Promise.all(
+          this.providers.map((provider) =>
+            provider.extractStreamDetails(streamProviderUrl)
+          )
         )
-      )
-        return null; // TODO: handle other providers
-
-      const { data } = await axios.get(streamProviderUrl);
-
-      const fileNameMatch = data.match(
-        /<meta name=['"]description['"] content=['"]([^']+?)['"]/i
-      );
-      const fileName = fileNameMatch ? fileNameMatch[1] : null;
-
-      const unpackedPlayerCode = unpacker.unpack(data);
-
-      const streamUrlMatch = unpackedPlayerCode.match(/file:"([^"]+)"/i);
-      const streamUrl = streamUrlMatch ? streamUrlMatch[1] : null;
-
-      const qualityLabelsMatch = unpackedPlayerCode.match(
-        /qualityLabels[^{]+({[^}]+})/i
-      );
-      const qualityLabels = qualityLabelsMatch
-        ? JSON.parse(qualityLabelsMatch[1])
-        : null;
-
-      const firstQuality = qualityLabels
-        ? Object.values(qualityLabels)[0]
-        : null;
-
-      return {
-        url: streamUrl,
-        fileName: fileName,
-        quality: firstQuality || "SD",
-      };
+      ).find((stream) => stream);
     } catch (error) {
       console.error("Error fetching stream URL:", error);
       return null;

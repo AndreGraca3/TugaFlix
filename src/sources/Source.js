@@ -1,4 +1,4 @@
-class Provider {
+class Source {
   constructor(name, siteUrl) {
     this.name = name;
     this.siteUrl = siteUrl;
@@ -9,4 +9,4 @@ class Provider {
   }
 }
 
-module.exports = Provider;
+module.exports = Source;
