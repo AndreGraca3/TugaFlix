@@ -47,7 +47,10 @@ class OsTeusFilmesTuga extends Source {
       return { postId, streamsCount };
     } catch (error) {
       console.error("Error fetching site data:", error);
-      return null;
+      return {
+        postId: null,
+        streamsCount: 0,
+      };
     }
   }
 
