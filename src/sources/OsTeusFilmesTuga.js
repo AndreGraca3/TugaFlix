@@ -77,6 +77,12 @@ class OsTeusFilmesTuga extends Source {
         ? streamProviderUrlMatch[1]
         : null;
 
+      return {
+        url: streamProviderUrl,
+        fileName: "teste",
+        quality: /*firstQuality ||*/ "SD",
+      };
+
       return (
         await Promise.all(
           this.providers.map((provider) =>

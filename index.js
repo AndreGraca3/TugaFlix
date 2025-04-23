@@ -32,7 +32,8 @@ builder.defineStreamHandler(async ({ type, id }) => {
             return {
               title: `🎬 ${stream.movieTitle}\n📂 ${stream.fileName}\n🌍 ${source.siteUrl}\n✨ ${stream.quality}`,
               name: `[TugaFlix]\n${stream.quality}`,
-              url: stream.url,
+              externalUrl: stream.url,
+              // url: stream.url,
               behaviorHints: {
                 notWebReady: true,
               },
