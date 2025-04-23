@@ -3,6 +3,7 @@ const unpacker = require("unpacker");
 const Provider = require("./Provider");
 
 class PackedProvider extends Provider {
+  // TODO: make a try mechanism to try Packed Provider and move on to the next instead of having all providers hardcoded and failing if not found
   providers = [
     "ryderjet",
     "vidhidehub",
@@ -10,6 +11,7 @@ class PackedProvider extends Provider {
     "ghbrisk",
     "smoothpre",
     "playerwish",
+    "streamwish"
   ];
 
   async extractStreamDetails(streamProviderUrl) {
@@ -33,8 +35,7 @@ class PackedProvider extends Provider {
 
       const unpackedPlayerCode = unpacker.unpack(data);
 
-      const streamUrlMatch = unpackedPlayerCode.match(/file:"([^"]+)"/i);
-      const streamUrl = streamUrlMatch ? streamUrlMatch[1] : null;
+      const m3uLink = this.extractM3UUrl(unpackedPlayerCode);
 
       const qualityLabelsMatch = unpackedPlayerCode.match(
         /qualityLabels[^{]+({[^}]+})/i
@@ -49,7 +50,7 @@ class PackedProvider extends Provider {
         : null;
 
       return {
-        url: streamUrl,
+        url: m3uLink,
         fileName: fileName,
         quality: firstQuality || "SD",
       };
@@ -57,6 +58,12 @@ class PackedProvider extends Provider {
       console.error("Error fetching stream URL:", error);
       return null;
     }
+  }
+
+  extractM3UUrl(unpackedCode) {
+    const urlRegex = /https?:\/\/[^"']+\.m3u8[^\s"']*/g;
+    const match = unpackedCode.match(urlRegex);
+    return match ? match[0] : null;
   }
 }
 
